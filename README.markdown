@@ -3,8 +3,8 @@ SUMMARY
 
 Teneral is a proof-of-concept command-line interface for the web.
 
-  Ten-er-al (adj.): The condition of an arthropod shortly after shedding 
-                     its former shell, when the animal is free to grow.
+>  Ten-er-al (adj.): The condition of an arthropod shortly after shedding 
+>                     its former shell, when the animal is free to grow.
 
 
 DESCRIPTION

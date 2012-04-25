@@ -1,0 +1,86 @@
+body { 
+	color: #FFF; 
+	background-color: #000;
+}
+
+#tnrl-content ::-webkit-scrollbar {
+	height: 60;
+	background-color: #222;
+	padding: 5px;
+	border-radius: 10px;
+}
+
+#tnrl-content ::-webkit-scrollbar-thumb {
+	border: 1px solid #888;
+	border-radius: 10px;
+	background: #555;
+}
+
+#tnrl-content ::-webkit-scrollbar-corner {
+	background: #000;
+}
+
+.tnrl-process.process-complete {
+	border-color: #090;
+}
+
+.tnrl-process.process-failed {
+	border-color: #C00;
+}
+
+.tnrl-title {
+	font-size: 12pt;
+	color: #999;
+	font-family: monospace;
+}
+
+.tnrl-process {
+	position: relative;
+	border: 3px solid;
+	border-color: #0F0;
+	border-radius: 10px;
+	padding: 5px;
+	padding-left: 10px;
+	white-space: pre;
+	margin-top: 10px;
+	margin-bottom: 10px;
+	font-family: monospace;
+	font-size: 16pt;
+	font-weight: bold;
+}
+
+.tnrl-process .tnrl-content {
+	overflow: auto;
+	max-height: 500px;
+}
+
+.tnrl-process .tnrl-close {
+	position: absolute;
+	right: 10px;
+	font-size: 12pt;
+	color: #999;
+	font-family: monospace;
+	cursor: pointer;
+}
+.tnrl-process .tnrl-min {
+	position: absolute;
+	right: 25px;
+	font-size: 12pt;
+	color: #999;
+	font-family: monospace;
+	cursor: pointer;
+}
+
+.tnrl-stdout {
+}
+
+code {
+	font-family: monospace;
+	font-size: 16pt;
+	font-weight: bold;
+}
+
+#tnrl-prompt {
+	border: none
+}
+

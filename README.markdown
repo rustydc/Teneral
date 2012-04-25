@@ -31,7 +31,7 @@ and displayed as a JPEG.
 COMPILING
 =========
 
-Just run `make`.
+Just run `make` in `src/`.
 
 (Requires libEV, libJSON, and OpenSSL.  To use `gcc`, edit Makefile.)
 
@@ -59,18 +59,29 @@ FUTURE WORK
 HACKING
 =======
 
- * tnrld.c         Main entry point, starts the daemon.
- * http.c          Handle HTTP requests and responses; serve static files.
- * socket.c        Callbacks to read from and write to sockets.
- * websocket.c     Upgrade a socket to a websocket.
- * processes.c     Execute processes via fork/exec, set up events.
- * messages.c      JSON encoding/decoding.
- * writebuf.c      A buffer of data waiting to be written.
- * ilist.c         Sorted array-list.  Used to track PIDs, sockets, etc.
+ * tnrld.c
+   - Main entry point, starts the daemon.
+ * http.c
+   - Handle HTTP requests and responses; serve static files.
+ * socket.c
+   - Callbacks to read from and write to sockets.
+ * websocket.c
+   - Upgrade a socket to a websocket.
+ * processes.c
+   - Execute processes via fork/exec, set up events.
+ * messages.c
+   - JSON encoding/decoding.
+ * writebuf.c
+   - A buffer of data waiting to be written.
+ * ilist.c
+   - Sorted array-list.  Used to track PIDs, sockets, etc.
 
- * static/index.html    HTML for the client interface.
- * static/tnrl.js       Javascript for the client UI.
- * static/tnrl.css      UI styling.
+ * static/index.html
+   - HTML for the client interface.
+ * static/tnrl.js
+   - Javascript for the client UI.
+ * static/tnrl.css
+   - UI styling.
 
 
 BUGS

@@ -67,7 +67,6 @@ HACKING
  * `messages.c` - JSON encoding/decoding.
  * `writebuf.c` - A buffer of data waiting to be written.
  * `ilist.c` - Sorted array-list.  Used to track PIDs, sockets, etc.
-
  * `static/index.html` - HTML for the client interface.
  * `static/tnrl.js` - Javascript for the client UI.
  * `static/tnrl.css` - UI styling.

@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <json/json.h>
+#include <json-c/json.h>
 
 // From 'libssl-dev'
 #include <openssl/sha.h>
@@ -23,10 +23,12 @@ cmd_t *parse_msg(char *msg) {
 		return NULL;
 	}
 
-	json_object *exec = json_object_object_get(new_obj, "execute");
+	json_object *exec;
+	json_object_object_get_ex(new_obj, "execute", &exec);
 
 	if (exec != NULL && json_object_get_type(exec) != json_type_null) {
-		json_object *cmds = json_object_object_get(exec, "arguments");
+		json_object *cmds;
+		json_object_object_get_ex(exec, "arguments", &cmds);
 		printf("args: '%s'\n", json_object_to_json_string(cmds));
 		int len = json_object_array_length(cmds);
 		int i, j;
@@ -42,19 +44,20 @@ cmd_t *parse_msg(char *msg) {
 			// For each arg in THIS array,
 			for (j = 0; j != len2; j++) {
 				json_object *arg = json_object_array_get_idx(args, j);
-				printf("arg[%d][%d]: '%s'\n", i, j, json_object_to_json_string(arg));
 				char *arg_str = (char *) json_object_get_string(arg);
-				argv[i][j] = malloc(strlen(arg_str));
+				argv[i][j] = malloc(strlen(arg_str) + 1);
 				strcpy(argv[i][j], arg_str);
 			}
 			argv[i][j] = NULL;
 		}
 		argv[i] = NULL;
 
-		json_object *req_id_obj = json_object_object_get(exec, "requestId");
+		json_object *req_id_obj;
+		json_object_object_get_ex(exec, "requestId", &req_id_obj);
 		int req_id = json_object_get_int(req_id_obj);
 
-		json_object *cmd_obj = json_object_object_get(exec, "command");
+		json_object *cmd_obj;
+		json_object_object_get_ex(exec, "command", &cmd_obj);
 		const char *cmd_str = json_object_get_string(cmd_obj);
 
 		cmd_execute_t *retval = malloc(sizeof(cmd_execute_t));
@@ -65,20 +68,49 @@ cmd_t *parse_msg(char *msg) {
 		retval->argv = argv;
 		retval->command_str = strdup(cmd_str);
 		
-		// TODO:  Free the object.
 		return (cmd_t *) retval;
 	}
 
 
 	// TODO: Signal message.
-	json_object *signal = json_object_object_get(new_obj, "signal");
+	json_object *signal;
+	json_object_object_get_ex(new_obj, "signal", &signal);
 	if (signal != NULL && json_object_get_type(signal) != json_type_null) {
 		printf("Signal.\n");
 		printf("%s\n", json_object_to_json_string(signal));
 	}
 
+	// TODO: Free new_obj.
+	json_object_put(new_obj);
 
 	return NULL;
+}
+
+
+void free_msg(cmd_t *cmd) {
+	if (cmd == NULL) {
+		return;
+	}
+
+	if (cmd->type == CMD_EXECUTE) {
+		cmd_execute_t *execute_cmd = (cmd_execute_t *) cmd;
+		char ***argv = execute_cmd->argv;
+		int i = 0;
+		while (argv[i] != NULL) {
+			// Free these.
+			int j = 0;
+			while (argv[i][j] != NULL) {
+				free(argv[i][j]);
+				j++;
+			}
+			free(argv[i]++);
+			i++;
+		}
+		free(argv);
+		free(execute_cmd->command_str);
+	}
+
+	free(cmd);
 }
 
 char *json_pid_out(int pid, char *type, char *output, int length)
@@ -102,14 +134,17 @@ char *json_pid_out(int pid, char *type, char *output, int length)
 	data_enc[bptr->length - 1] = 0;
 
 	json_object *jout = json_object_new_string_len(data_enc, bptr->length);
+	free(data_enc);
 	json_object_object_add(jpout, "data", jout);
 
 	json_object *jtype = json_object_new_string("stdout");
 	json_object_object_add(jpout, "type", jtype);
 	
 	json_object_object_add(msg, "processOutput", jpout);
-
-	return (char *) json_object_to_json_string(msg);
+	
+	char *str = (char *) json_object_to_json_string(msg);
+	
+	return str;
 }
 
 char *json_pid_status(int pid, int ret, int sig);

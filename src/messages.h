@@ -21,5 +21,6 @@ char *json_pid_status(int pid, int ret, int sig);
 char *json_pid_new(int pid, char *command, int request_id);
 
 cmd_t *parse_msg(char *msg);
+void free_msg(cmd_t *msg);
 
 #endif

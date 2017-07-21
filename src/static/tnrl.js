@@ -68,7 +68,7 @@ var TeneralClient = function(path) {
         if (obj.newProcess) {
           // Create a new command window.
           var pid = obj.newProcess.pid;
-          $("<div class=\"tnrl-process\" id=\"tnrl-process-" + obj.newProcess.pid + "\"><span class=\"tnrl-title\"></span><span class=\"tnrl-min\">-</span><span class=\"tnrl-close\">x</span><div class=\"tnrl-content\"><div class=\"tnrl-stdout\" tab-index=\"0\"></div><div class=\"tnrl-stderr\"></div></div></div>").hide().prependTo("#tnrl-content").show("fast");
+          $("<div class=\"tnrl-process\" id=\"tnrl-process-" + obj.newProcess.pid + "\"><span class=\"tnrl-title\"></span><span class=\"tnrl-min\">-</span><span class=\"tnrl-close\">x</span><div class=\"tnrl-content\"><div class=\"tnrl-stdout\" tab-index=\"0\"></div><div class=\"tnrl-stderr\"></div></div></div>").prependTo("#tnrl-content");
           var procWin  = $("#tnrl-process-" + pid);
           var proc  = $("#tnrl-process-" + pid + " .tnrl-content");
           var close = $("#tnrl-process-" + pid + " > .tnrl-close");
@@ -116,14 +116,11 @@ var TeneralClient = function(path) {
           var div = $("#tnrl-process-" + pid + " .tnrl-content");
 
           if (that.procs[pid].type == "jpeg") {
-            var tmp = new WebKitBlobBuilder();
-            tmp.append(that.procs[pid].output);
-            tmp.append(decode(obj.processOutput.data));
-            that.procs[pid].output = tmp.getBlob();
+            var blob = new Blob(
+                [that.procs[pid].output, decode(obj.processOutput.data)]);
+            that.procs[pid].output = blob;
           } else {
-            var tmp = new WebKitBlobBuilder();
-            tmp.append(decode(obj.processOutput.data));
-            var blob = tmp.getBlob();
+            var blob = new Blob([decode(obj.processOutput.data)]);
             var reader = new FileReader();
             reader.onload = function(f) {
               stdout.append(document.createTextNode(f.target.result));
@@ -163,7 +160,7 @@ var TeneralClient = function(path) {
 
   // Welcome message, executed on the server to prove we have connectivity:
   that.w.onopen = function () {
-    that.execute("echo Welcome to tnrl.", [["echo", "Welcome", "to", "tnrl."]], that.reqId);
+    that.execute("cowsay Welcome to tnrl.", [["cowsay", "Welcome", "to", "tnrl."]], that.reqId);
   };
 
   return that;

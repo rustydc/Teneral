@@ -57,10 +57,12 @@ int try_upgrade(request_t *req, connection_t *con)
             "Sec-WebSocket-Accept: %s\r\n\r\n";
 
 	// hash_enc is 28 bytes long, replacing '%s'...
-	char *msg = malloc(strlen(msg_f) + (28-2));
+	char *msg = malloc(strlen(msg_f) + (28 - 1));
 	sprintf(msg, msg_f, hash_enc);
+	free(hash_enc);
 
 	socket_write(con->socket, msg, strlen(msg));
+	free(msg);
 
 	BIO_free_all(b64);
 
@@ -92,6 +94,9 @@ char *write_frame(frame_t *frame, int *length)
 		data[1] = (char)126;
 		((short *)data)[1] = htons((short)frame->len);
 		memcpy(data + 4, frame->payload, frame->len);
+	} else {
+		printf("Frame length too long.\n");
+		return NULL;
 	}
 	return data;
 }

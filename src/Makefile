@@ -2,7 +2,7 @@
 CC=clang -g -I/usr/include/x86_64-linux-gnu/ -Wall -Werror
 
 OBJS=ilist.o socket.o http.o websocket.o messages.o processes.o
-LIBS=-lev -lssl -ljson
+LIBS=-lev -lssl -ljson-c -lm -lcrypto
 
 tnrld: tnrld.c $(OBJS)
 	$(CC) tnrld.c $(OBJS) -o tnrld $(LIBS)

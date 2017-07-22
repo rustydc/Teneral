@@ -84,7 +84,7 @@ socket_t *socket_new(int fd, void (*process_cb) (socket_t *socket), void *data, 
 
 static void rbuf_cb(struct ev_loop *loop, struct ev_io *w, int revents)
 {
-	char buf[512];
+	unsigned char buf[512];
 	int len;
 
 	socket_t *socket = w->data;
@@ -104,6 +104,12 @@ static void rbuf_cb(struct ev_loop *loop, struct ev_io *w, int revents)
 
 	// Read it all into rbuf.
 	len  = read(w->fd, buf, 512);
+	if (len == -1) {
+		perror("read");
+		ev_io_stop(loop, w);
+		free(w);
+		return;
+	}
 
 	// If len = 0, we're done.
 	if (!len) {

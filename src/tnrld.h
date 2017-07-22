@@ -10,7 +10,6 @@ typedef struct tnrld_s {
 	int listen_port;
 	int listen_fd;
 	struct ev_loop *evloop;
-	ilist_t *sessions;
 } tnrld_t;
 
 tnrld_t *new_tnrld(int listen_port);

@@ -87,6 +87,21 @@ void process_http_cb(socket_t *socket)
 		strncpy(p, f->payload, f->len);
 		p[f->len] = 0;
 		
+		if (f->opcode == 0x8) {
+			// Close the websocket.
+			frame_t *f = new_frame(1, 0, WS_OP_CLOSE, "");
+			int fr_len;
+			char *fr_str = write_frame(f, &fr_len);
+			free(f->payload);
+			free(f);
+			free(p);
+			socket_write(socket, fr_str, fr_len);
+			free(fr_str);
+			return;
+			// TODO: Remove and free this connection.
+			// TODO: Maybe kill their processes?
+		}
+
 		cmd_t *cmd = parse_msg(p);
 		if (cmd != NULL && cmd->type == CMD_EXECUTE) {
 			process_t *p = execute_cmd((cmd_execute_t *)cmd);

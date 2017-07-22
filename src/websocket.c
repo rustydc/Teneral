@@ -71,6 +71,15 @@ int try_upgrade(request_t *req, connection_t *con)
 	return 1;
 }
 
+frame_t *new_frame(char fin, int len, int opcode, char *payload) {
+	frame_t *frame = malloc(sizeof(frame_t));
+	frame->fin = 1;
+	frame->len = len;
+	frame->opcode = WS_OP_BIN;
+	frame->payload = payload;
+	return frame;
+}
+
 char *write_frame(frame_t *frame, int *length)
 {
 	char *data;

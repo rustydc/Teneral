@@ -161,6 +161,8 @@ void process_http_cb(socket_t *socket)
 			serve_file(socket, "static/index.html");
 		} else if (!strcmp(req->uri, "/tnrl.js")) {
 			serve_file(socket, "static/tnrl.js");
+		} else if (!strcmp(req->uri, "/ansi_up.js")) {
+			serve_file(socket, "static/ansi_up.js");
 		} else if (!strcmp(req->uri, "/tnrl.css")) {
 			serve_file(socket, "static/tnrl.css");
 		} else if (!strcmp(req->uri, "/favicon.ico")) {

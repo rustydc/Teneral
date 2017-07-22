@@ -104,6 +104,7 @@ var TeneralClient = function(path) {
 
           that.procs[pid] = {};
           that.procs[pid].output = "";
+          that.procs[pid].au = new AnsiUp;
           var cmd = obj.newProcess.command;
 
           // HACK: If the command ended in .jpg, interpret its output as JPG.
@@ -123,7 +124,8 @@ var TeneralClient = function(path) {
             var blob = new Blob([decode(obj.processOutput.data)]);
             var reader = new FileReader();
             reader.onload = function(f) {
-              stdout.append(document.createTextNode(f.target.result));
+              var html = that.procs[pid].au.ansi_to_html((f.target.result));
+              stdout.append(html);
               div = $("#tnrl-process-" + pid + " .tnrl-content");
               div.scrollTop(div.prop("scrollHeight")+20);
               // TODO:  Good height handling.

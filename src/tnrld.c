@@ -44,7 +44,7 @@ void process_child_out_cb(socket_t *socket)
 
 	char *str = json_pid_out(sp->pid->pid, "stdout", socket->rbuf, socket->rbuf_len);
 
-	frame_t *frame = malloc(sizeof(frame_t *));
+	frame_t *frame = malloc(sizeof(frame_t));
 	frame->fin = 1;
 	frame->len = strlen(str);
 	frame->opcode = WS_OP_BIN;
@@ -112,7 +112,7 @@ void process_http_cb(socket_t *socket)
 			
 			sprintf(str, format, p->pid, ((cmd_execute_t*)cmd)->command_str, time, ((cmd_execute_t*)cmd)->request_id);
 
-			frame_t *frame = malloc(sizeof(frame_t *));
+			frame_t *frame = malloc(sizeof(frame_t));
 			frame->fin = 1;
 			frame->len = strlen(str);
 			frame->opcode = WS_OP_BIN;
@@ -120,17 +120,21 @@ void process_http_cb(socket_t *socket)
 
 			int fr_len;
 			char *fr_str = write_frame(frame, &fr_len);
+			free(frame);
 
 			socket_write(socket, fr_str, fr_len);
+			free(fr_str);
 
-			socket_new(p->out, &process_child_out_cb, sp, socket);
+			p->output =
+				socket_new(p->out, &process_child_out_cb, sp, socket);
 
 			ev_child *child_watcher = (struct ev_child*) malloc (sizeof(struct ev_child));
 			ev_child_init (child_watcher, child_cb, p->pid, 1);
-			child_watcher->data = socket;
+			child_watcher->data = sp;
 			ev_child_start(loop, child_watcher);
 		}
 	
+		free_msg(cmd);
 		free(f->payload);
 		free(f);
 		free(p);
@@ -170,7 +174,6 @@ void process_http_cb(socket_t *socket)
 		request_delete(req);
 		
 	}
-	//printf("%s", buf);
 }
 
 // Accept a new a connection, set up the callbacks.
@@ -199,6 +202,7 @@ static void accept_cb(EV_P_ ev_io *w, int revents)
 // Report that a child has exited
 void child_cb(EV_P_ ev_child *w, int revents)
 {
+	printf("Process %d exited with status %x\n", w->rpid, w->rstatus);
 	char str[100];
 	char format[] = 
 	    "{\"processTerminated\" : "
@@ -209,7 +213,8 @@ void child_cb(EV_P_ ev_child *w, int revents)
 	long int time = (long int) tp.tv_sec * 1000 + tp.tv_usec;
 
 	sprintf(str, format, w->rpid, WEXITSTATUS(w->rstatus), WSTOPSIG(w->rstatus), time);
-	socket_t *s = w->data;
+	sock_pid_t *sp = w->data;
+	socket_t *s = sp->socket;
 
 	ev_child_stop (EV_A_ w);
 
@@ -226,6 +231,9 @@ void child_cb(EV_P_ ev_child *w, int revents)
 	free(fr_str);
 
 	ilist_remove(processes, w->rpid);
+
+	// TODO: Can't free here, output still coming.
+	//free(sp->pid);
 }
 
 // Start up the webserver.
@@ -233,7 +241,6 @@ int start_webserver(char *port) {
 	struct addrinfo hints, *res;
 	int sockfd;
 	
-	res = malloc(sizeof(struct addrinfo));
 	memset(&hints, 0, sizeof hints);
 	hints.ai_family = AF_UNSPEC;
 	hints.ai_socktype = SOCK_STREAM;
@@ -242,6 +249,9 @@ int start_webserver(char *port) {
 	getaddrinfo(NULL, port, &hints, &res);
 	
 	sockfd = socket(res->ai_family, res->ai_socktype, res->ai_protocol);
+	int optval;
+	optval = 1;
+	setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(optval));
 
 	int val = bind(sockfd, res->ai_addr, res->ai_addrlen);
 	if (val < 0) {
@@ -256,11 +266,7 @@ int start_webserver(char *port) {
 		freeaddrinfo(res);
 		return -1;
 	}
-	printf("%d: Listening.\n", sockfd);
-
-	int optval;
-	optval = 1;
-	setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(optval));
+	printf("%d: Listening on %s.\n", sockfd, port);
 
 	freeaddrinfo(res);
 

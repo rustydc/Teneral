@@ -4,6 +4,7 @@
 #include <sys/time.h>
 
 #include "messages.h"
+#include "socket.h"
 
 typedef struct process_completion_s {
 	int return_code;
@@ -18,6 +19,7 @@ typedef struct process_s {
         int out;
         int err;
 	process_completion_t *completion;
+	socket_t *output;
 } process_t;
 
 process_t *execute_cmd(cmd_execute_t *cmd);

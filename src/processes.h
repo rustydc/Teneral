@@ -2,6 +2,7 @@
 #define __PROCESSES_H__
 
 #include <sys/time.h>
+#include <ev.h>
 
 #include "messages.h"
 #include "socket.h"
@@ -20,6 +21,7 @@ typedef struct process_s {
         int err;
 	process_completion_t *completion;
 	socket_t *output;
+	ev_child *child;
 } process_t;
 
 process_t *execute_cmd(cmd_execute_t *cmd);

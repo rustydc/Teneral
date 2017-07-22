@@ -67,7 +67,8 @@ cmd_t *parse_msg(char *msg) {
 		retval->request_id = req_id;
 		retval->argv = argv;
 		retval->command_str = strdup(cmd_str);
-		
+
+		json_object_put(new_obj);
 		return (cmd_t *) retval;
 	}
 
@@ -128,12 +129,14 @@ char *json_pid_out(int pid, char *type, char *output, int length)
 	if (BIO_flush(b64) != 1) perror("BIO_flush");
 	BUF_MEM *bptr;
 	BIO_get_mem_ptr(b64, &bptr);
+	BIO_free(b64);
 
 	char *data_enc = malloc(bptr->length);
 	memcpy(data_enc, bptr->data, bptr->length);
 	data_enc[bptr->length - 1] = 0;
 
 	json_object *jout = json_object_new_string_len(data_enc, bptr->length);
+	BIO_free(bmem);
 	free(data_enc);
 	json_object_object_add(jpout, "data", jout);
 
@@ -143,8 +146,13 @@ char *json_pid_out(int pid, char *type, char *output, int length)
 	json_object_object_add(msg, "processOutput", jpout);
 	
 	char *str = (char *) json_object_to_json_string(msg);
+
+	// Copy the string out, so we can free the JSON object.
+	char *str2 = (char *) malloc(strlen(str) + 1);
+	strcpy(str2, str);
 	
-	return str;
+	json_object_put(msg);
+	return str2;
 }
 
 char *json_pid_status(int pid, int ret, int sig);

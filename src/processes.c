@@ -71,7 +71,7 @@ process_t *execute_cmd(cmd_execute_t *cmd)
 	// loop over the commands, executing each one.
 	int i, p_in, p_out;
 	int pfds[2];
-	process_t *last_proc;
+	process_t *last_proc = NULL;
 	for (i = 0; cmd->argv[i] != NULL; i++) {
 		// If it's the first command, use the new socket.
 		if (i == 0) {
@@ -91,8 +91,11 @@ process_t *execute_cmd(cmd_execute_t *cmd)
 			p_out = pfds[1];
 		}
 
+		if (last_proc != NULL) {
+			// TODO: Should we store these?
+			free(last_proc);
+		}
 		last_proc = execute_prog(cmd->argv[i], p_in, p_out, err[0]);
-		// TODO:  Save or free the non-last ones.
 	}
 
 	// Return the in/out/err of the whole pipeline.

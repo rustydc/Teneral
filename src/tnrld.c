@@ -57,6 +57,7 @@ void process_child_out_cb(socket_t *socket)
 
 	socket_consume(socket, socket->rbuf_len);
 
+	free(str);
 	free(frame);
 	free(fr_str);
 }
@@ -89,14 +90,14 @@ void process_http_cb(socket_t *socket)
 		
 		if (f->opcode == 0x8) {
 			// Close the websocket.
-			frame_t *f = new_frame(1, 0, WS_OP_CLOSE, "");
-			int fr_len;
-			char *fr_str = write_frame(f, &fr_len);
-			free(f->payload);
-			free(f);
+			frame_t *close = new_frame(1, 0, WS_OP_CLOSE, "");
+			int close_len;
+			char *close_str = write_frame(close, &close_len);
 			free(p);
-			socket_write(socket, fr_str, fr_len);
-			free(fr_str);
+			free(close);
+			socket_write(socket, close_str, close_len);
+			free(close_str);
+			free(f);
 			return;
 			// TODO: Remove and free this connection.
 			// TODO: Maybe kill their processes?
@@ -144,6 +145,7 @@ void process_http_cb(socket_t *socket)
 				socket_new(p->out, &process_child_out_cb, sp, socket);
 
 			ev_child *child_watcher = (struct ev_child*) malloc (sizeof(struct ev_child));
+			p->child = child_watcher;
 			ev_child_init (child_watcher, child_cb, p->pid, 1);
 			child_watcher->data = sp;
 			ev_child_start(loop, child_watcher);

@@ -10,18 +10,18 @@ char *get_line(char *str, int length, int *length_used) {
 
 	for (i = 0; i != length - 1; i++) {
 		if (str[i] == '\0') {
-			//TODO
+			// TODO
 			*length_used = 0;
 			return NULL;
 		}
 
-		if (i < length-1 && str[i] == '\r' && str[i+1] == '\n') {
+		if (i < length - 1 && str[i] == '\r' && str[i + 1] == '\n') {
 			// Up through str[i-1] is the line.
 			// Make the destination one bigger to hold a NULL.
-			char *retval = malloc(i+1);
+			char *retval = malloc(i + 1);
 			memcpy(retval, str, i);
 			retval[i] = '\0';
-			*length_used = i+2;  // Consume the CRLF.
+			*length_used = i + 2;  // Consume the CRLF.
 			return retval;
 		}
 	}
@@ -30,7 +30,6 @@ char *get_line(char *str, int length, int *length_used) {
 	return NULL;
 }
 
-
 request_t *parse_request(char *str, int length, int *length_used) {
 	int used, end;
 	char *rest, *line;
@@ -38,7 +37,7 @@ request_t *parse_request(char *str, int length, int *length_used) {
 	header_t *headers[100];  // Allow 100 per request for now?
 
 	line = get_line(str, length, &used);
-	
+
 	if (line) {
 		rest = line;
 
@@ -66,13 +65,13 @@ request_t *parse_request(char *str, int length, int *length_used) {
 		memcpy(uri, rest, end);
 		uri[end] = '\0';
 		rest = rest + end + 1;
-		
+
 		// Get VERSION
 		end = strlen(rest);
 		char *version = malloc(end + 1);
 		memcpy(version, rest, end);
 		version[end] = '\0';
-		rest = rest + end + 2; // CRLF
+		rest = rest + end + 2;  // CRLF
 
 		free(line);
 		int used_tot = used;
@@ -85,7 +84,7 @@ request_t *parse_request(char *str, int length, int *length_used) {
 			header_name[end] = '\0';
 
 			// Get header value
-			rest = line + end + 2; // ': '
+			rest = line + end + 2;  // ': '
 			end = strlen(rest);
 			char *header_value = malloc(end + 1);
 			memcpy(header_value, rest, end);
@@ -97,7 +96,8 @@ request_t *parse_request(char *str, int length, int *length_used) {
 				*length_used = 0;
 				return NULL;
 			}
-			line = get_line(str + used_tot, length - used_tot, &used);
+			line =
+			    get_line(str + used_tot, length - used_tot, &used);
 
 			headers[num_headers] = malloc(sizeof(header_t));
 			headers[num_headers]->name = header_name;
@@ -124,7 +124,7 @@ request_t *parse_request(char *str, int length, int *length_used) {
 		}
 
 		free(line);
-		
+
 		headers_t *headers2 = malloc(sizeof(headers_t));
 		headers2->count = num_headers;
 		headers2->headers = malloc(sizeof(header_t *) * num_headers);
@@ -133,13 +133,12 @@ request_t *parse_request(char *str, int length, int *length_used) {
 		for (i = 0; i != num_headers; i++) {
 			headers2->headers[i] = headers[i];
 		}
-		
+
 		request_t *retval = malloc(sizeof(request_t));
 		retval->method = method;
 		retval->uri = uri;
 		retval->version = version;
 		retval->headers = headers2;
-		
 
 		*length_used = used_tot;
 		return retval;
@@ -150,8 +149,7 @@ request_t *parse_request(char *str, int length, int *length_used) {
 	}
 }
 
-char *request_get_header(request_t *req, char *name)
-{
+char *request_get_header(request_t *req, char *name) {
 	int i = 0;
 	for (i = 0; i != req->headers->count; i++) {
 		if (!strcmp(req->headers->headers[i]->name, name)) {
@@ -163,8 +161,7 @@ char *request_get_header(request_t *req, char *name)
 	return NULL;
 }
 
-void headers_free(headers_t *headers)
-{
+void headers_free(headers_t *headers) {
 	int i;
 	for (i = 0; i != headers->count; i++) {
 		free(headers->headers[i]->name);
@@ -175,20 +172,19 @@ void headers_free(headers_t *headers)
 	free(headers);
 }
 
-void  request_delete(request_t *req)
-{
+void request_delete(request_t *req) {
 	free(req->method);
 	free(req->uri);
 	free(req->version);
 	headers_free(req->headers);
-	free(req);	
+	free(req);
 }
 
 // Potentially return multiple:
-request_t *parse_requests(char *str, int length, int *length_used, int *num_found);
+request_t *parse_requests(
+    char *str, int length, int *length_used, int *num_found);
 
-void serve_file(socket_t *socket, char *filename)
-{
+void serve_file(socket_t *socket, char *filename) {
 	char buf[4096];
 	FILE *f = fopen(filename, "r");
 	fseek(f, 0L, SEEK_END);
@@ -202,7 +198,6 @@ void serve_file(socket_t *socket, char *filename)
 	sprintf(len_str, "Content-Length: %d\r\n\r\n", size);
 	socket_write(socket, len_str, strlen(len_str));
 
-
 	int n = fread(buf, 1, 4096, f);
 	while (n > 0) {
 		socket_write(socket, buf, n);
@@ -210,4 +205,3 @@ void serve_file(socket_t *socket, char *filename)
 	}
 	fclose(f);
 }
-

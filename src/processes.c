@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <unistd.h>
 #include <sys/socket.h>
+#include <unistd.h>
 
 #include "processes.h"
 #include "tnrld.h"
@@ -9,7 +9,9 @@
 extern tnrld_t *tnrld;
 
 // TODO:  Should probably set up the read watcher before the fork.
-process_t *execute_prog(char **argv, int in, int out, int err) //cmd_execute_t *cmd)
+process_t *execute_prog(
+    char **argv, int in, int out,
+    int err)  // cmd_execute_t *cmd)
 {
 	int pid = fork();
 
@@ -21,13 +23,13 @@ process_t *execute_prog(char **argv, int in, int out, int err) //cmd_execute_t *
 		// Install default pipe signal handler.
 		signal(SIGPIPE, SIG_DFL);
 
-		if ( dup2(in, 0) == -1) {
+		if (dup2(in, 0) == -1) {
 			perror("dup");
 		}
-		if ( dup2(out, 1) == -1) {
+		if (dup2(out, 1) == -1) {
 			perror("dup");
 		}
-		if ( dup2(err, 2) == -1) {
+		if (dup2(err, 2) == -1) {
 			perror("dup");
 		}
 
@@ -49,8 +51,7 @@ process_t *execute_prog(char **argv, int in, int out, int err) //cmd_execute_t *
 	return NULL;
 }
 
-process_t *execute_cmd(cmd_execute_t *cmd)
-{
+process_t *execute_cmd(cmd_execute_t *cmd) {
 	int in[2];
 	int out[2];
 	int err[2];
@@ -67,7 +68,7 @@ process_t *execute_cmd(cmd_execute_t *cmd)
 		perror("socketpair");
 		exit(1);
 	}
- 
+
 	// loop over the commands, executing each one.
 	int i, p_in, p_out;
 	int pfds[2];
@@ -79,9 +80,9 @@ process_t *execute_cmd(cmd_execute_t *cmd)
 		} else {
 			p_in = pfds[0];
 		}
-		
+
 		// If it's the last, use the new out socket.
-		if (cmd->argv[i+1] == NULL) {
+		if (cmd->argv[i + 1] == NULL) {
 			p_out = out[0];
 		} else {
 			if (pipe(pfds) == -1) {
@@ -105,4 +106,3 @@ process_t *execute_cmd(cmd_execute_t *cmd)
 
 	return last_proc;
 }
-

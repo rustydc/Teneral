@@ -3,13 +3,12 @@
 
 #include "http.h"
 
-#define WS_OP_CONT  0x0
-#define WS_OP_TEXT  0x1
-#define WS_OP_BIN   0x2
+#define WS_OP_CONT 0x0
+#define WS_OP_TEXT 0x1
+#define WS_OP_BIN 0x2
 #define WS_OP_CLOSE 0x8
-#define WS_OP_PING  0x9
-#define WS_OP_PONG  0xA
-
+#define WS_OP_PING 0x9
+#define WS_OP_PONG 0xA
 
 typedef struct frame_s {
 	char fin;
@@ -17,7 +16,6 @@ typedef struct frame_s {
 	long int len;
 	char *payload;
 } frame_t;
-	
 
 int try_upgrade(request_t *req, connection_t *con);
 char *unmask(char *mask, int length, char *data);

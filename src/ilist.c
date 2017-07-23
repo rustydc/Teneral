@@ -5,8 +5,7 @@
 #include "ilist.h"
 
 // Create a ilist with 'size' capacity.
-ilist_t *new_ilist(int size)
-{
+ilist_t *new_ilist(int size) {
 	ilist_t *list = malloc(sizeof(ilist_t));
 	list->items = malloc(sizeof(void *) * size);
 	list->len = 0;
@@ -18,30 +17,30 @@ ilist_t *new_ilist(int size)
 void printlist(ilist_t *list) {
 	int i;
 	for (i = 0; i != list->len; i++) {
-		printf("list[%d]: %d\n", i, *((int*)list->items[i]));
+		printf("list[%d]: %d\n", i, *((int *)list->items[i]));
 	}
 }
 
-void ilist_insert(ilist_t *list, void *item)
-{
+void ilist_insert(ilist_t *list, void *item) {
 	int pos;
-	int id = *(int*)item;
+	int id = *(int *)item;
 
 	if (list->len == 0) {
 		pos = 0;
 	} else {
-
 		int loc = bin_search(list, id, &pos);
-	
+
 		if (loc != -1) {
 			printf("ilist: Dup insert ignored.\n");
 			return;
 		}
 
-		bcopy(list->items+pos, list->items+pos+1, ((list->len)-pos) * sizeof(int*));
+		bcopy(
+		    list->items + pos, list->items + pos + 1,
+		    ((list->len) - pos) * sizeof(int *));
 	}
 	list->items[pos] = item;
-	
+
 	list->len++;
 }
 
@@ -49,7 +48,7 @@ void ilist_insert(ilist_t *list, void *item)
 // Set 'pos' to the position to insert at if it isn't there
 int bin_search(ilist_t *list, int id, int *pos) {
 	int min = 0;
-	int max = list->len-1;
+	int max = list->len - 1;
 	int mid, diff;
 
 	// List length zero:  not found, insert at 0.
@@ -59,7 +58,7 @@ int bin_search(ilist_t *list, int id, int *pos) {
 	}
 
 	while (min <= max) {
-		mid = (min+max)/2;
+		mid = (min + max) / 2;
 		diff = *(list->items[mid]) - id;
 
 		if (diff < 0) {
@@ -78,12 +77,10 @@ int bin_search(ilist_t *list, int id, int *pos) {
 	if (diff > 0) {
 		*pos = mid;
 	} else {
-		*pos = mid+1;
+		*pos = mid + 1;
 	}
 	return -1;
-
 }
-
 
 void *ilist_fetch(ilist_t *list, int id) {
 	int pos;
@@ -106,13 +103,11 @@ void *ilist_remove(ilist_t *list, int id) {
 
 	void *retval = list->items[pos];
 
-	bcopy(list->items+pos+1, list->items+pos, list->len-(pos));
+	bcopy(list->items + pos + 1, list->items + pos, list->len - (pos));
 	list->len--;
 
 	return retval;
-	
 }
-
 
 void *ilist_get(ilist_t *list, int n) {
 	if (n >= list->len) {
@@ -121,5 +116,4 @@ void *ilist_get(ilist_t *list, int n) {
 	}
 
 	return (list->items[n]);
-
 }

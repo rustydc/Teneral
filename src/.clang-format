@@ -1,0 +1,4 @@
+BasedOnStyle: Google
+UseTab: ForIndentation
+IndentWidth: 8
+AlignAfterOpenBracket: AlwaysBreak

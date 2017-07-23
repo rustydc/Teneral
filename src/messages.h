@@ -2,17 +2,15 @@
 #define __MESSAGES_H__
 
 #define CMD_EXECUTE 0
-#define CMD_SIGNAL  1
+#define CMD_SIGNAL 1
 
-typedef struct cmd_s {
-	int type;
-} cmd_t;
+typedef struct cmd_s { int type; } cmd_t;
 
 typedef struct cmd_execute_s {
 	cmd_t command;
 	char *command_str;
-	char ***argv;  // Assume we pipe from argv[0] to argv[n]
-	               //  Each is a list of args.
+	char ***argv;    // Assume we pipe from argv[0] to argv[n]
+	                 //  Each is a list of args.
 	int request_id;  // Just a token to track which is which?
 } cmd_execute_t;
 

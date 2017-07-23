@@ -9,7 +9,7 @@ typedef struct writebuf_s {
 	int fd;
 
 	struct ev_loop *loop;
-	
+
 	int watching;
 	int len;
 	char buf[8192];

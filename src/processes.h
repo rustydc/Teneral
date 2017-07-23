@@ -1,8 +1,8 @@
 #ifndef __PROCESSES_H__
 #define __PROCESSES_H__
 
-#include <sys/time.h>
 #include <ev.h>
+#include <sys/time.h>
 
 #include "messages.h"
 #include "socket.h"
@@ -14,11 +14,11 @@ typedef struct process_completion_s {
 } process_completion_t;
 
 typedef struct process_s {
-        int pid;
-        char **argv;
-        int in;
-        int out;
-        int err;
+	int pid;
+	char **argv;
+	int in;
+	int out;
+	int err;
 	process_completion_t *completion;
 	socket_t *output;
 	socket_t *error;
@@ -34,4 +34,3 @@ void process_done(process_t *process, int return_code, int by_signal);
 // pipelines?
 
 #endif
-

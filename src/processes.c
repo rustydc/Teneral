@@ -18,7 +18,6 @@ process_t *execute_prog(
 	if (pid == 0) {
 		// Child.
 		close(tnrld->listen_fd);
-		printf("Calling execvp: '%s'...\n", argv[0]);
 
 		// Install default pipe signal handler.
 		signal(SIGPIPE, SIG_DFL);

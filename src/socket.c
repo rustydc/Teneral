@@ -4,6 +4,7 @@
 #include <string.h>
 #include <unistd.h>
 
+#include "debug.h"
 #include "socket.h"
 #include "tnrld.h"
 
@@ -94,7 +95,7 @@ static void rbuf_cb(struct ev_loop *loop, struct ev_io *w, int revents) {
 	// TODO: UGLY HACK
 	if (socket->wait_for != NULL) {
 		if (socket->wait_for->wbuf_len > 31000) {
-			printf(
+			logp(
 			    "Dest looks full.  Returning. (%d)\n",
 			    socket->wait_for->wbuf_len);
 			sleep(1);
@@ -132,7 +133,7 @@ static void rbuf_cb(struct ev_loop *loop, struct ev_io *w, int revents) {
 
 void socket_write(socket_t *socket, char *data, int len) {
 	if (socket->wbuf_len + len > socket->wbuf_size) {
-		printf("Socket full!\n");
+		logp("Socket full!\n");
 		// TODO: resize!
 		return;
 	}

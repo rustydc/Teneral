@@ -9,6 +9,7 @@
 #include <openssl/evp.h>
 #include <openssl/sha.h>
 
+#include "debug.h"
 #include "messages.h"
 
 cmd_t *parse_msg(char *msg) {
@@ -16,7 +17,7 @@ cmd_t *parse_msg(char *msg) {
 	new_obj = json_tokener_parse(msg);
 
 	if (new_obj == NULL || json_object_is_type(new_obj, json_type_null)) {
-		printf("Not a JSON object.\n");
+		logp("Not a JSON object.\n");
 		return NULL;
 	}
 
@@ -26,7 +27,7 @@ cmd_t *parse_msg(char *msg) {
 	if (exec != NULL && json_object_get_type(exec) != json_type_null) {
 		json_object *cmds;
 		json_object_object_get_ex(exec, "arguments", &cmds);
-		printf("args: '%s'\n", json_object_to_json_string(cmds));
+		logp("args: '%s'\n", json_object_to_json_string(cmds));
 		int len = json_object_array_length(cmds);
 		int i, j;
 
@@ -75,8 +76,8 @@ cmd_t *parse_msg(char *msg) {
 	json_object *signal;
 	json_object_object_get_ex(new_obj, "signal", &signal);
 	if (signal != NULL && json_object_get_type(signal) != json_type_null) {
-		printf("Signal.\n");
-		printf("%s\n", json_object_to_json_string(signal));
+		logp("Signal.\n");
+		logp("%s\n", json_object_to_json_string(signal));
 	}
 
 	// TODO: Free new_obj.

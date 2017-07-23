@@ -10,6 +10,7 @@
 #include <openssl/evp.h>
 #include <openssl/sha.h>
 
+#include "debug.h"
 #include "http.h"
 #include "websocket.h"
 
@@ -25,7 +26,7 @@ int try_upgrade(request_t *req, connection_t *con) {
 
 	char *version = request_get_header(req, "Sec-WebSocket-Version");
 	if (strcmp(version, "8") && strcmp(version, "13")) {
-		printf(
+		logp(
 		    "Wrong WebSocket version!  %s, expecting 8 or 13.\n",
 		    version);
 		return 0;
@@ -105,7 +106,7 @@ char *write_frame(frame_t *frame, int *length) {
 		((short *)data)[1] = htons((short)frame->len);
 		memcpy(data + 4, frame->payload, frame->len);
 	} else {
-		printf("Frame length too long.\n");
+		logp("Frame length too long.\n");
 		return NULL;
 	}
 	return data;
@@ -136,7 +137,7 @@ frame_t *read_frame(char *data, int length, int *used) {
 		case 127:
 			mask_start = 10;
 			// ntohl is only 32 bit, need 64.
-			printf("Long payload length not yet implemented!\n");
+			logp("Long payload length not yet implemented!\n");
 			return NULL;
 			break;
 	}

@@ -15,6 +15,7 @@
 // From package 'libev-dev'
 #include <ev.h>
 
+#include "debug.h"
 #include "http.h"
 #include "ilist.h"
 #include "messages.h"
@@ -67,8 +68,7 @@ void process_http_cb(socket_t *socket) {
 
 	connection_t *ptr = ilist_fetch(connections, socket->fd);
 	if (ptr == NULL) {
-		printf(
-		    "%d: Tried to get from list, but got NULL.\n", socket->fd);
+		logp("%d: Tried to get from list, but got NULL.\n", socket->fd);
 		return;
 	}
 
@@ -165,7 +165,7 @@ void process_http_cb(socket_t *socket) {
 
 	request_t *req = parse_request(socket->rbuf, socket->rbuf_len, &used);
 	if (req) {
-		printf(
+		logp(
 		    "%d: New Request: %s %s\n", socket->fd, req->method,
 		    req->uri);
 
@@ -179,7 +179,7 @@ void process_http_cb(socket_t *socket) {
 
 		int upgraded = try_upgrade(req, ptr);
 		if (upgraded) {
-			printf("%d: Upgraded to WebSocket!\n", socket->fd);
+			logp("%d: Upgraded to WebSocket!\n", socket->fd);
 		} else if (!strcmp(req->uri, "/")) {
 			serve_file(socket, "static/index.html");
 		} else if (!strcmp(req->uri, "/tnrl.js")) {
@@ -208,13 +208,13 @@ static void accept_cb(EV_P_ ev_io *w, int revents) {
 	int fd = accept(w->fd, (struct sockaddr *)&their_addr, &addr_size);
 
 	if (fd < 0) {
-		printf(
+		logp(
 		    "Accept failed from %d...  revents = %d\n", w->fd, revents);
 		perror("accept_cb");
 		return;
 	}
 
-	printf("%d: New Connection: %d!\n", w->fd, fd);
+	logp("%d: New Connection: %d!\n", w->fd, fd);
 
 	connection_t *con = malloc(sizeof(connection_t));
 	con->fd = fd;
@@ -225,7 +225,7 @@ static void accept_cb(EV_P_ ev_io *w, int revents) {
 
 // Report that a child has exited
 void child_cb(EV_P_ ev_child *w, int revents) {
-	printf("Process %d exited with status %x\n", w->rpid, w->rstatus);
+	logp("Process %d exited with status %x\n", w->rpid, w->rstatus);
 	char str[100];
 	char format[] =
 	    "{\"processTerminated\" : "
@@ -292,7 +292,7 @@ int start_webserver(char *port) {
 		freeaddrinfo(res);
 		return -1;
 	}
-	printf("%d: Listening on %s.\n", sockfd, port);
+	logp("%d: Listening on %s.\n", sockfd, port);
 
 	freeaddrinfo(res);
 
@@ -308,7 +308,8 @@ tnrld_t *new_tnrld(int port) {
 
 void int_handler(int sig) {
 	close(tnrld->listen_fd);
-	printf("Socket closed.\n");
+	ev_break(tnrld->evloop, EVBREAK_ALL);
+	logp("Socket closed.\n");
 	exit(0);
 }
 
@@ -342,8 +343,8 @@ int main(int argc, char **argv) {
 	ev_io_init(&http_watcher, accept_cb, webfd, EV_READ);
 	ev_io_start(loop, &http_watcher);
 	ev_set_io_collect_interval(loop, 0.001);
-	ev_loop(loop, 0);
+	ev_run(loop, 0);
 
-	printf("Server shut down.\n");
+	logp("Server shut down.\n");
 	exit(0);
 }

@@ -143,6 +143,8 @@ void process_http_cb(socket_t *socket)
 
 			p->output =
 				socket_new(p->out, &process_child_out_cb, sp, socket);
+			p->error =
+				socket_new(p->err, &process_child_out_cb, sp, socket);
 
 			ev_child *child_watcher = (struct ev_child*) malloc (sizeof(struct ev_child));
 			p->child = child_watcher;

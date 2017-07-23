@@ -21,6 +21,7 @@ typedef struct process_s {
         int err;
 	process_completion_t *completion;
 	socket_t *output;
+	socket_t *error;
 	ev_child *child;
 } process_t;
 

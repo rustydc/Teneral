@@ -189,7 +189,7 @@ request_t *parse_requests(char *str, int length, int *length_used, int *num_foun
 
 void serve_file(socket_t *socket, char *filename)
 {
-	char buf[512];
+	char buf[4096];
 	FILE *f = fopen(filename, "r");
 	fseek(f, 0L, SEEK_END);
 	int size = ftell(f);
@@ -203,10 +203,10 @@ void serve_file(socket_t *socket, char *filename)
 	socket_write(socket, len_str, strlen(len_str));
 
 
-	int n = fread(buf, 1, 512, f);
+	int n = fread(buf, 1, 4096, f);
 	while (n > 0) {
 		socket_write(socket, buf, n);
-		n = fread(buf, 1, 512, f);
+		n = fread(buf, 1, 4096, f);
 	}
 	fclose(f);
 }

@@ -112,7 +112,7 @@ char *write_frame(frame_t *frame, int *length)
 
 frame_t *read_frame(char *data, int length, int *used)
 {
-	int fin, opcode, do_mask, payload_len;
+	unsigned int fin, opcode, do_mask, payload_len;
 	char mask_val[4];
 	int mask_start = 2;
 
@@ -131,7 +131,7 @@ frame_t *read_frame(char *data, int length, int *used)
 		// Two byte length. [3] and [4].
 		// Network order.
 		mask_start = 4;
-		memcpy(&payload_len, data + 3, 2);
+		memcpy(&payload_len, data + 2, 2);
 		payload_len = ntohs(payload_len);
 		break;
 	case 127:
